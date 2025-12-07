@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="or">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OromoAI - Oromo Language Chat</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="page active">
+        <div class="auth-container">
+            <div class="auth-box">
+                <div class="logo">OromoAI</div>
+                <h1>Salaam</h1>
+                <p>Akka jabaatudhan barbaadhu</p>
+                
+                <form class="auth-form" onsubmit="handleLogin(event)">
+                    <input type="email" placeholder="Email" required>
+                    <input type="password" placeholder="Password" required>
+                    <button type="submit">Seena</button>
+                </form>
+                
+                <div class="divider">Motuma</div>
+                
+                <div style="display: flex; justify-content: center; width: 100%; overflow: hidden;">
+                    <div id="google-login-btn" class="google-btn"></div>
+                </div>
+                
+                <p class="auth-switch">
+                    Sadarkaa haaraa? <a href="#" onclick="switchToSignup(event)">Galmaa</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Page -->
+    <div id="signupPage" class="page">
+        <div class="auth-container">
+            <div class="auth-box">
+                <div class="logo">OromoAI</div>
+                <h1>Galmaa</h1>
+                <p>Sadarkaa haaraa uumuu</p>
+                
+                <form class="auth-form" onsubmit="handleSignup(event)">
+                    <input type="text" placeholder="Maqaa" required>
+                    <input type="email" placeholder="Email" required>
+                    <input type="password" placeholder="Password" required>
+                    <input type="password" placeholder="Confirm Password" required>
+                    <button type="submit">Galmaa Haa</button>
+                </form>
+                
+                <div class="divider">Motuma</div>
+                
+                <div style="display: flex; justify-content: center; width: 100%; overflow: hidden;">
+                    <div id="google-signup-btn" class="google-btn"></div>
+                </div>
+                
+                <p class="auth-switch">
+                    Sadarkaa jirtuu? <a href="#" onclick="switchToLogin(event)">Seena</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Chat Page -->
+    <div id="chatPage" class="page">
+        <div class="chat-layout">
+            <!-- Side Panel -->
+            <aside id="sidePanel" class="side-panel">
+                <div class="panel-header">
+                    <button id="togglePanel" class="toggle-btn">☰</button>
+                    <div class="logo-mini">OromoAI</div>
+                </div>
+
+                <!-- Profile Dropdown -->
+                <div class="profile-dropdown">
+                    <button id="profileBtn" class="profile-btn" onclick="toggleProfileMenu(event)">
+                        <span class="profile-avatar-small">👤</span>
+                        <span id="profileBtnName" class="profile-btn-name">User</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div id="profileMenu" class="profile-menu" style="display: none;">
+                        <button class="profile-menu-item" onclick="showProfileDetail('profile')">👤 Profaayila</button>
+                        <button class="profile-menu-item" onclick="showProfileDetail('settings')">⚙️ Qindeessaa</button>
+                        <button class="profile-menu-item" onclick="showProfileDetail('personalisation')">🎨 Personalisation</button>
+                        <hr>
+                        <button class="profile-menu-item logout" onclick="logout()">📤 Bahi</button>
+                    </div>
+                </div>
+
+                <!-- Chat History -->
+                <div class="chat-history-section">
+                    <div class="history-header">
+                        <h3>Seensa</h3>
+                        <button class="new-chat-btn" onclick="startNewChat()">+</button>
+                    </div>
+                    <div id="chatHistoryList" class="history-list">
+                        <p class="empty-state">Seensa haaraa hin jiru</p>
+                    </div>
+                </div>
+
+                <!-- Settings Modal -->
+                <div id="settingsModal" class="settings-modal" style="display: none;">
+                    <div class="settings-modal-content">
+                        <button class="close-btn" onclick="closeProfileDetail()">✕</button>
+                        
+                        <div id="profileDetail" class="detail-section" style="display: none;">
+                            <h3>Profaayila</h3>
+                            <div class="profile-content">
+                                <div class="profile-avatar">👤</div>
+                                <p><strong>Maqaa:</strong> <span id="profileNameValue">User</span></p>
+                                <p><strong>Email:</strong> <span id="profileEmailValue">user@email.com</span></p>
+                                <p><strong>Seena:</strong> <span id="profileJoinValue">Today</span></p>
+                            </div>
+                        </div>
+
+                        <div id="settingsDetail" class="detail-section" style="display: none;">
+                            <h3>Qindeessaa</h3>
+                            <div class="settings-group">
+                                <label>Halee:</label>
+                                <div class="theme-toggles">
+                                    <button class="theme-btn" id="lightTheme" onclick="setTheme('light')">☀️ Light</button>
+                                    <button class="theme-btn" id="darkTheme" onclick="setTheme('dark')">🌙 Dark</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="personalisationDetail" class="detail-section" style="display: none;">
+                            <h3>Personalisation</h3>
+                            <div class="settings-group">
+                                <label>Appearance:</label>
+                                <p style="color: var(--text-light); font-size: 0.9em;">Customize your experience</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Chat -->
+            <main class="chat-main">
+                <div style="display: flex; flex-direction: column; height: 100%;">
+                    <div class="chat-header">
+                        <div class="header-content">
+                            <h1>OromoAI</h1>
+                            <p>Afaan Oromoo</p>
+                        </div>
+                        <div class="user-profile">
+                            <span id="userGreeting">Salaam!</span>
+                        </div>
+                    </div>
+
+                    <div class="messages" id="messages">
+                        <div class="message bot-message">
+                            <strong>OromoAI:</strong>
+                            <p>Salaam! Akkam jirtuu? Gaaffii kee gaafadhu!</p>
+                            <small>Hello! How are you? Ask me a question!</small>
+                        </div>
+                    </div>
+
+                    <div class="input-area">
+                        <input type="text" id="userInput" placeholder="Waan itti dubbisu barbaadhu..." autocomplete="off">
+                        <button id="sendBtn" class="send-btn">🚀 Ergi</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
